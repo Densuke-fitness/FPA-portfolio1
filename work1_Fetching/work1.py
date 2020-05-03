@@ -37,7 +37,7 @@ def make_df(TICKER:str):
     ticker = TICKER.split(",")
     #######1-1:12周期の財務数値データを取得(3年間）###################################################
     bc_api_endpoint_q = "https://api.buffett-code.com/api/v2/quarter"
-    apikey_q = "YourApiKey" #【自分で調整するもの(購入してください)】 
+    apikey_q = "yCnSHE6rmX9vOWBCBapym4p1mOlBizJhcqfFZQo7" #【自分で調整するもの(購入してください)】 
 
     START_q ="2017Q1"  #【自分で調整するもの: 2020年5月3日時点の最新の値です】
     END_q ="2019Q4"    #【自分で調整するもの: 2020年5月3日時点の最新の値です】
@@ -61,9 +61,11 @@ def make_df(TICKER:str):
 
 
     #仕様上最大1年間までしかデータを取得できない為、1年ごとにデータを取得しforで3年間取得する形を取っている）
+    start_year = 2017 #【自分で調整するもの:2020年5月3日時点の最新の値です】
+    start_month = 4       #【自分で調整するもの:2020年5月3日時点の最新の値です】
     json_data_day = dict()
-    for year in range(2017,2020):  #【自分で調整するもの:2020年5月3日時点の最新の値です】
-        START_day = f"{year}-04-01" #【自分で調整するもの:2020年5月3日時点の最新の値です】
+    for year in range(start_year,start_year+3):  
+        START_day = f"{year}-0{start_month}-01" 
         END_day =  f"{year+1}-03-31" #【自分で調整するもの:2020年5月3日時点の最新の値です】
         #apikeyを入れ、api利用を許可してもらい日別の株価を取得
         res_day = fetch(TICKER,bc_api_endpoint_day,apikey_day,START_day,END_day) 
@@ -88,12 +90,14 @@ def make_df(TICKER:str):
         df_merge = pd.DataFrame()
 
         #４半期に分解
-        searchConditionMonth = 0
+        searchConditionMonth = start_month - 1
         searchConditionMonthIncrement = 3
-        searchConditionYear = 2017
+        searchConditionYear = start_year
 
+        count = 0
         while True:
-            if 2020 <= searchConditionYear:
+            count += 1
+            if 4 * 3 + 1  <= count:
                 break
 
             # 検索条件（From）

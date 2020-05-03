@@ -37,10 +37,10 @@ def make_df(TICKER:str):
     ticker = TICKER.split(",")
     #######1-1:12周期の財務数値データを取得(3年間）###################################################
     bc_api_endpoint_q = "https://api.buffett-code.com/api/v2/quarter"
-    apikey_q = "yCnSHE6rmX9vOWBCBapym4p1mOlBizJhcqfFZQo7" #【自分で調整するもの(購入してください)】 
+    apikey_q = "YourApiKey" #【自分で調整するもの(購入してください)】 
 
-    START_q ="2017Q1"  #【自分で調整するもの:四半期ごとの更新で数値をずらしてください。】
-    END_q ="2019Q4"    #【自分で調整するもの:四半期ごとの更新で数値をずらしてください。】
+    START_q ="2017Q1"  #【自分で調整するもの: 2020年5月3日時点の最新の値です】
+    END_q ="2019Q4"    #【自分で調整するもの: 2020年5月3日時点の最新の値です】
 
     #apikeyを入れ、api利用を許可してもらい四半期データを取得
     res_q = fetch(TICKER,bc_api_endpoint_q,apikey_q,START_q,END_q)
@@ -62,9 +62,9 @@ def make_df(TICKER:str):
 
     #仕様上最大1年間までしかデータを取得できない為、1年ごとにデータを取得しforで3年間取得する形を取っている）
     json_data_day = dict()
-    for year in range(2017,2020):  #【自分で調整するもの:四半期ごとの更新で数値をずらしてください。】
-        START_day = f"{year}-04-01" #【自分で調整するもの:四半期ごとの更新で数値をずらしてください。】
-        END_day =  f"{year+1}-03-31" #【自分で調整するもの:もし一年間の取得が１月始まりでは無い場合はyearに+1 をしましょう。】
+    for year in range(2017,2020):  #【自分で調整するもの:2020年5月3日時点の最新の値です】
+        START_day = f"{year}-04-01" #【自分で調整するもの:2020年5月3日時点の最新の値です】
+        END_day =  f"{year+1}-03-31" #【自分で調整するもの:2020年5月3日時点の最新の値です】
         #apikeyを入れ、api利用を許可してもらい日別の株価を取得
         res_day = fetch(TICKER,bc_api_endpoint_day,apikey_day,START_day,END_day) 
         textDict_day = json.loads(res_day.text)

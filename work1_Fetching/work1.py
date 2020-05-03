@@ -37,7 +37,7 @@ def make_df(TICKER:str):
     ticker = TICKER.split(",")
     #######1-1:12周期の財務数値データを取得(3年間）###################################################
     bc_api_endpoint_q = "https://api.buffett-code.com/api/v2/quarter"
-    apikey_q = "yCnSHE6rmX9vOWBCBapym4p1mOlBizJhcqfFZQo7" #【自分で調整するもの(購入してください)】 
+    apikey_q = "YourApiKey" #【自分で調整するもの(購入してください)】 
 
     START_q ="2017Q1"  #【自分で調整するもの: 2020年5月3日時点の最新の値です】
     END_q ="2019Q4"    #【自分で調整するもの: 2020年5月3日時点の最新の値です】

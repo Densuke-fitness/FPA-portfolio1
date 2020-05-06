@@ -16,20 +16,25 @@ from datetime import *
 
 #＜バフェットコードのapiを利用し、データを取得する為の関数＞
 def fetch(ticker,bc_api_endpoint,apikey,FROM,TO):
-
+    #httpのGETメソッド
     response = requests.get(
+                            #アクセスしたurlを取得
                             url=bc_api_endpoint,
+                            #urlパラメータを指定
                             params={
+                                    #銘柄コードを指定
                                     "tickers":ticker,
+                                    #期間を指定
                                     "from":FROM,
                                     "to":TO,
                                     },
+                                    #レスポンスヘッダーを指定
                                     headers={
+                                            #apikeyを指定
                                             "x-api-key":apikey,
                                             },
                             )
     return response
-
 
 #＜３種類のデータを取得する為の関数＞
 def make_df(TICKER:str):
@@ -52,6 +57,20 @@ def make_df(TICKER:str):
     #リスト化をし最終的に一気にCSV化をする
     df_q_list = [df_q_0,df_q_1,df_q_2]
 
+    #古い順にデータをソートする
+    for i in range(len(df_q_list)):
+        #to_datetimeに変換
+        df_q_list[i]['to_datetime'] = pd.to_datetime(df_q_list[i]["edinet_updated_date"])
+        #ソートしたリストを作成
+        sort_data = sorted(df_q_list[i]['to_datetime'])
+        #データを再作成
+        concat_data = pd.DataFrame()
+        for sort_num in range(len(sort_data)):
+            #リストを頼りに組み直す
+            datetime_data = df_q_list[i][df_q_list[i]['to_datetime'] == sort_data[sort_num]]
+            concat_data = pd.concat([concat_data,datetime_data],axis = 0)
+        #データを更新
+        df_q_list[i] = concat_data
 
     #######1-2:2017年～2019年のdailyの株価指標を取得し四半期ごとに平均化###############################
             #(4月〜6月が第1四半期、7月〜 9月が第2四半期となる)  
@@ -80,8 +99,9 @@ def make_df(TICKER:str):
     df_d_1 = pd.DataFrame.from_dict(json_data_day[ticker[1]])
     df_d_2 = pd.DataFrame.from_dict(json_data_day[ticker[2]])
     df_d_list = [df_d_0,df_d_1,df_d_2]
-    df_day_list = []
 
+
+    df_day_list = []
     #四半期ごとに株価の平均を出すために、datetimeで4半期ごとにわけられるようラベル付けする
     for i in range(len(df_d_list)):
         df_d_list[i]['to_datetime'] = pd.to_datetime(df_d_list[i]['day'])
@@ -158,10 +178,10 @@ try:
         count_int = int(f.read())
     count = count_int
     memory = count
-    for Ticker in ticker_list_three[count:] :
-        df_q_list,df_day_list,df_c_list = make_df(Ticker)
+    for ticker_code in ticker_list_three[count:] :
+        df_q_list,df_day_list,df_c_list = make_df(ticker_code)
         for i in range(3):
-            ticker_l = Ticker.split(",")
+            ticker_l = ticker_code.split(",")
             #上記で書いた3種類のデータ取得の関数をもとに集めたデータを、それぞれcsvへ保存
             df_q_list[i].to_csv(f"work1_Fetching/df_q/{ticker_l[i]}.csv")
             df_day_list[i].to_csv(f"work1_Fetching/df_day/{ticker_l[i]}.csv")

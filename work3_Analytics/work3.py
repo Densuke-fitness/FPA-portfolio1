@@ -6,7 +6,6 @@ from sklearn import linear_model
 import statsmodels.api as smf
 import pyautogui as pg 
 import pandas as pd
-import sys 
 from IPython.display import clear_output
 import time 
 
@@ -45,7 +44,7 @@ def data_drop(processed_data):
     return processed_data
 
 
-#＜業種分類が同じ企業を集める関数＞
+#＜業種が同じ企業を集める関数＞
 def industry_classification(industry,processed_data):
     data_concat = pd.DataFrame()
     for num in industry["銘柄コード"]:
@@ -81,8 +80,8 @@ def confirm_enterprise(code,stock,pattern):
                 buttons = ["全体で確認する", "業種内で確認する"]
             )
             if confirm == None :
-                print("操作を終了します")
-                sys.exit()
+                
+                return None
 
             else:
                 cannot_confirm = False
@@ -90,13 +89,13 @@ def confirm_enterprise(code,stock,pattern):
 
 
         else: #重回帰分析を選択したとき
-            confirm = pg.confirm(text = "どちらを確認しますか？\n<注意>\n機械,サービス業,情報・通信,小売業,電気機器\n以外の業種は業種内予測を行えません。",
+            confirm = pg.confirm(text = "どちらを確認しますか？\n<注意>\n電気機器,卸売業,小売業,サービス業,情報・通信業\n以外の業種は業種内予測を行えません。",
                                             title = "分析範囲の選択",
                                             buttons =["全体で確認する","業種内で確認する"]
             )
             if confirm == None:
-                print("操作を終了します")
-                sys.exit()
+                
+                return None
 
             elif confirm == "全体で確認する":
                 cannot_confirm = False
@@ -104,12 +103,12 @@ def confirm_enterprise(code,stock,pattern):
 
             else: #業種内 を選択したとき
                 specified = stock[stock["銘柄コード"] == int(code)]  
-                ind_c = specified["業種分類"].values[0]
-                if ind_c in ["機械","サービス業","情報・通信","小売業","電気機器"]:
+                ind_c = specified["業種"].values[0]
+                if ind_c in ["電気機器","卸売業","小売業","サービス業","情報・通信業"]:
                     cannot_confirm = False
                     return confirm
                 else:
-                    print(f"業種分類：{ind_c}\n業種内分析が出来ない企業です、全体分析を行ってください。")
+                    print(f"業種：{ind_c}\n業種内分析が出来ない企業です、全体分析を行ってください。")
                     time.sleep(3)
     
 
@@ -127,21 +126,22 @@ def flag_one():
     )
     return flag_one
 
+#１０社以下の業種は省いています。
 #＜業種⓵を選択する関数＞
 def flag_two():
     flag_two = pg.confirm(text = "操作を終了したい場合は×を押してください", 
                             title = "業種欄①", 
-                            buttons =
-                                    ["水産・農林業",
-                                    "卸売業",
+                            buttons =[
+                                    "水産・農林業",
                                     "建設業",
-                                    "機械",
-                                    "サービス業",
-                                    "金属製品",
-                                    "情報・通信",
                                     "食料品",
+                                    "繊維製品",
+                                    "パルプ・紙",
+                                    "化学",
                                     "医薬品",
-                                    "陸運業",
+                                    "石油・石炭製品",
+                                    "ゴム製品",
+                                    "ガラス・土石製品",
                                     "業種欄②へ"
                                     ]
     )
@@ -153,16 +153,17 @@ def flag_three():
     flag_three = pg.confirm(text = "操作を終了したい場合は×を押してください", 
                             title = "業種欄②", 
                             buttons =
-                                    ["小売業",
-                                    "不動産業",
-                                    "繊維製品",
+                                    [
+                                    "鉄鋼",
+                                    "非鉄金属",
+                                    "金属製品",
+                                    "機械",
                                     "電気機器",
-                                    "ガラス・土石製品",
-                                    "証券業",
                                     "輸送用機器",
-                                    "化学",
-                                    "パルプ・紙",
-                                    "石油・石炭製品",
+                                    "精密機器",
+                                    "その他製品",
+                                    "電気・ガス業",
+                                    "陸運業",
                                     "業種欄③へ"
                                     ]
     )
@@ -173,15 +174,18 @@ def flag_four():
     flag_four = pg.confirm(text = "操作を終了したい場合は×を押してください", 
                             title = "業種欄③", 
                             buttons =
-                                    ["ゴム製品",
-                                    "鉄鋼",
-                                    "精密機器",
-                                    "銀行業",
-                                    "保険業",         
-                                    "その他金融業",
-                                    "倉庫・運輸関連業",
+                                    [
                                     "海運業",
-                                    "電気・ガス業"   
+                                    "倉庫・運輸関連業",
+                                    "卸売業",
+                                    "小売業",
+                                    "銀行業",
+                                    "証券、商品先物取引業",
+                                    "保険業",
+                                    "その他金融業",
+                                    "不動産業",
+                                    "サービス業",
+                                    "情報・通信業"
                                     ]
     )
     return flag_four
@@ -236,8 +240,8 @@ def total_power_survey(pattern):
     #pyautguiによる選択操作
     flag1 = flag_one()
     if flag1== None :
-        print("操作を終了します")
-        sys.exit()
+        
+        return None,None,None
 
     elif flag1 == "全体を分析する" :
         data_mediRE = processed_data.fillna(processed_data.median())
@@ -246,30 +250,30 @@ def total_power_survey(pattern):
         flag2 =flag_two()
 
         if flag2 == None:
-            print("操作を終了します")
-            sys.exit()
+            
+            return None,None,None
 
         elif flag2 == "業種欄②へ" :
             flag3 = flag_three()
 
             if flag3 == None:
-                print("操作を終了します")
-                sys.exit()
+                
+                return None,None,None
 
             elif flag3 == "業種欄③へ":
                 flag4 = flag_four()
 
                 if flag4 == None :
-                    print("操作を終了します")
-                    sys.exit()
+                    
+                    return None,None,None
                 else :
-                    stock_class = stock[stock["業種分類"] == flag4]
+                    stock_class = stock[stock["業種"] == flag4]
                     data_mediRE = industry_classification(stock_class,processed_data)
             else :
-                stock_class = stock[stock["業種分類"] == flag3]
+                stock_class = stock[stock["業種"] == flag3]
                 data_mediRE = industry_classification(stock_class,processed_data)
         else :
-            stock_class = stock[stock["業種分類"] == flag2]
+            stock_class = stock[stock["業種"] == flag2]
             data_mediRE = industry_classification(stock_class,processed_data)
 
     else:
@@ -280,8 +284,8 @@ def total_power_survey(pattern):
             #企業名(コード)を記入する
             type_in = typing()
             if type_in == None :
-                print("操作を終了します")
-                sys.exit()   
+                
+                return None,None,None
             else :
                 #入力値がコードか会社名か判定
                 if type_in.isdecimal() == True:
@@ -294,16 +298,16 @@ def total_power_survey(pattern):
                         code = type_in
                         confirm = confirm_enterprise(code,stock,pattern)
                         if confirm == None:
-                            print("操作を終了します")
-                            sys.exit()
+                            
+                            return None,None,None
                         elif confirm  == "全体で確認する":
                             data_mediRE = processed_data.fillna(processed_data.median())
                         else :#"業種内の順位を確認する"
                             #選択したコードの業種を確定させる
                             specified = stock[stock["銘柄コード"] == int(code)]  
-                            ind_c = specified["業種分類"].values[0]
+                            ind_c = specified["業種"].values[0]
                             #最終行付近で利用
-                            stock_class = stock[stock["業種分類"] == ind_c]
+                            stock_class = stock[stock["業種"] == ind_c]
                             #同じ業種のコードを抽出する
                             data_mediRE = industry_classification(stock_class,processed_data)
                             
@@ -326,23 +330,23 @@ def total_power_survey(pattern):
                                                 buttons =contain["company"].values
                                                 )
                         if reference == None:
-                            print("操作を終了します")
-                            sys.exit()   
+                            
+                            return None,None,None 
                         else :
                             cannot_analyze = False
                             code = processed_data[processed_data["company"]== reference]["code"].values[0]
                             confirm = confirm_enterprise(code,stock,pattern)
                             if confirm == None:
-                                print("操作を終了します")
-                                sys.exit()
+                                
+                                return None,None,None
                             elif confirm  == "全体で確認する":
                                 data_mediRE = processed_data.fillna(processed_data.median())
                             else :#"業種内の順位を確認する"
                                 #選択したコードの業種を確定させる
                                 specified = stock[stock["銘柄コード"] == int(code)]  
-                                ind_c = specified["業種分類"].values[0]
+                                ind_c = specified["業種"].values[0]
                                 #最終行付近で利用
-                                stock_class = stock[stock["業種分類"] == ind_c]
+                                stock_class = stock[stock["業種"] == ind_c]
                                 #同じ業種のコードを抽出する
                                 data_mediRE = industry_classification(stock_class,processed_data)
 
@@ -398,7 +402,7 @@ def select_two():
 def select_three():
     select3 = pg.confirm(text = "操作を終了したい場合は×を押してください", 
                         title = "業種欄", 
-                        buttons = ["機械", "サービス業", "情報・通信", "小売業",  "電気機器"]
+                        buttons = ["電気機器","卸売業","小売業","サービス業","情報・通信業"]
     )
     return select3
 
@@ -444,7 +448,7 @@ def MRA(data_medi):
         else:
             if len(del_list) == len(result.pvalues):
                 print("p値判定で全てクレンジングをした為、分析出来ませんでした。")
-                sys.exit()
+                return None,None,None
             else:
                 data_medi_new_except_criterion = data_medi_new_except_criterion.drop(del_list,axis = 1)
 
@@ -512,14 +516,14 @@ def multiple_regression_analysis(pattern):
         processed_data = data_drop(processed_data)
 
     else:
-        print("操作を終了します")
-        sys.exit()
+        
+        return None,None,None,None
 
 
     select2 = select_two()
     if select2 == None:
-        print("操作を終了します")
-        sys.exit()
+        
+        return None,None,None,None
 
     elif select2 == "全体を分析する" :
         data_medi = processed_data.fillna(processed_data.median())
@@ -529,10 +533,10 @@ def multiple_regression_analysis(pattern):
         select3 = select_three()
 
         if select3 == None:
-            print("操作を終了します")
-            sys.exit()       
+            
+            return None,None,None,None  
         else :
-            stock_class = stock[stock["業種分類"] == select3]
+            stock_class = stock[stock["業種"] == select3]
             data_medi = industry_classification(stock_class,processed_data)
 
 
@@ -543,8 +547,8 @@ def multiple_regression_analysis(pattern):
             clear_output()
             type_in = typing()
             if type_in == None :
-                print("操作を終了します")
-                sys.exit()   
+                
+                return None,None,None,None
             else :
                 #入力値がコードか会社名か判定
                 if type_in.isdecimal() :
@@ -557,16 +561,16 @@ def multiple_regression_analysis(pattern):
                         code = type_in
                         confirm = confirm_enterprise(code,stock,pattern)
                         if confirm == None:
-                            print("操作を終了します")
-                            sys.exit()
+                            
+                            return None,None,None,None
                         elif confirm  == "全体で確認する":
                             data_medi = processed_data.fillna(processed_data.median())
                         else :#"業種内の順位を確認する"
                             #選択したコードの業種を確定させる
                             specified = stock[stock["銘柄コード"] == int(code)]  
-                            ind_c = specified["業種分類"].values[0]
+                            ind_c = specified["業種"].values[0]
                             #最終行付近で利用
-                            stock_class = stock[stock["業種分類"] == ind_c]
+                            stock_class = stock[stock["業種"] == ind_c]
                             #同じ業種のコードを抽出する
                             data_medi = industry_classification(stock_class,processed_data)
                             
@@ -586,23 +590,23 @@ def multiple_regression_analysis(pattern):
                     else :
                         reference = pg.confirm(text = "検索したい企業はどれですか？", title = "確認用", buttons = contain["company"].values )
                         if reference == None:
-                            print("操作を終了します")
-                            sys.exit()   
+                            
+                            return None,None,None,None  
                         else :
                             cannot_analyze = False
                             code = processed_data[processed_data["company"]== reference]["code"].values[0]
                             confirm = confirm_enterprise(code,stock,pattern)
                             if confirm == None:
-                                print("操作を終了します")
-                                sys.exit()
+                                
+                                return None,None,None,None
                             elif confirm  == "全体で確認する":
                                 data_medi = processed_data.fillna(processed_data.median())
                             else :#"業種内の順位を確認する"
                                 #選択したコードの業種を確定させる
                                 specified = stock[stock["銘柄コード"] == int(code)]  
-                                ind_c = specified["業種分類"].values[0]
+                                ind_c = specified["業種"].values[0]
                                 #最終行付近で利用
-                                stock_class = stock[stock["業種分類"] == ind_c]
+                                stock_class = stock[stock["業種"] == ind_c]
                                 #同じ業種のコードを抽出する
                                 data_medi = industry_classification(stock_class,processed_data)
                             
@@ -611,6 +615,8 @@ def multiple_regression_analysis(pattern):
 
     #データをクレンジングし分析する
     E , result , data_medi_new_except_criterion   = MRA(data_medi)
+    if E is None:
+        return None, None,None,None
 
     #＜指定企業を選択したとき＞
     if select2 == "指定企業を分析する":
@@ -657,7 +663,7 @@ def multiple_regression_analysis(pattern):
         sampling = mra_list[:round(len(mra_list)*0.1)]
         if len(sampling) == 0:
             print("期待利益を見込める企業が見つかりませんでした")
-            sys.exit()
+            return None,None,None,None
         #上位10％の銘柄が確認されたとき
         else:
             out_put = pd.DataFrame()
@@ -691,7 +697,7 @@ def check_enterprize(pattern, mra_out , data_mediRE, tps_out , data_medi , resul
             return data_mediRE
 
         else :
-            print("操作を終了します")
+            
             return True
 
     else:#"重回帰分析"
@@ -708,7 +714,7 @@ def check_enterprize(pattern, mra_out , data_mediRE, tps_out , data_medi , resul
             #確認用2: 統計量
             return result.summary()
         else :
-            print("操作を終了します")
+            
             return True
 
 

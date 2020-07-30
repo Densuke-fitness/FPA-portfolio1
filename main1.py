@@ -1,4 +1,4 @@
-from model import model
+from work1_Fetching.model import model
 
 """
 <<1.データを取得>>
@@ -18,7 +18,7 @@ APIKEY = "YourApiKey"
 #取得年を記入してください（データの取得を一回以上している場合は、カウントをリセットしない限り変えないでください。）
 FETCHTIMEYEAR = 2020
 #取得月を記入してください（データの取得を一回以上している場合は、カウントをリセットしない限り変えないでください。）
-FETCHTIMEMONTH = 6
+FETCHTIMEMONTH = 7
 
 if __name__== '__main__':
     with open('work1_Fetching/model/acsess_key.txt','w') as f:

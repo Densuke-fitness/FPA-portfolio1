@@ -1,4 +1,4 @@
-from model2 import model2
+from work2_Processing.model2 import model2
 """
 <<2.データ加工>>
 取得したデータを、下記のもの参考にし説明変数となる財務指標(約25個)をします。

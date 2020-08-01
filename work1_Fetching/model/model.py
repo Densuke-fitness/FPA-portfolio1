@@ -18,7 +18,8 @@ FETCHTIMEMONTH = int(decode[2])
 #＜＜＜バフェットコードAPI取得＞＞＞
 class UseBaffetCodeAPI(object):
     
-    def fetch(self, ticker, bc_api_endpoint, APIKEY, fetch_from, fetch_to):
+    @classmethod
+    def fetch(cls, ticker, bc_api_endpoint, APIKEY, fetch_from, fetch_to):
         """バフェットコードのapiを利用し、データを取得する為の関数"""
         #httpのGETメソッド
         response = requests.get(
@@ -31,12 +32,12 @@ class UseBaffetCodeAPI(object):
                                         #期間を指定
                                         "from":fetch_from,
                                         "to":fetch_to,
-                                        },
+                                },
                                         #レスポンスヘッダーを指定
-                                        headers={
-                                                #apikeyを指定
-                                                "x-api-key":APIKEY,
-                                                },
+                                headers={
+                                        #apikeyを指定
+                                        "x-api-key":APIKEY,
+                                },
                                 )
         return response
 
@@ -88,7 +89,6 @@ class DataAcquisition(UseBaffetCodeAPI):
         self.from_d_month  = from_d_month
         self.to_d_month = to_d_month
 
-
     def quarter_acquire(self, tickers_str:str):
         """直近3年間の四半期の財務数値を取得する関数 12周期の財務数値データを取得(3年間）"""
         #証券コードのリストの行に入っている３つのコードを分割
@@ -97,7 +97,7 @@ class DataAcquisition(UseBaffetCodeAPI):
         bc_api_endpoint_q = "https://api.buffett-code.com/api/v2/quarter"
 
         #apikeyを入れ、api利用を許可してもらい四半期データを取得
-        res_q = self.fetch(tickers_str, bc_api_endpoint_q, APIKEY, self.from_q,self.to_q)
+        res_q = self.fetch(tickers_str, bc_api_endpoint_q, APIKEY, self.from_q, self.to_q)
         json_data_q = json.loads(res_q.text)
         #バフェットコードの仕様で一回当たり最大3社が取得可能な為対応
         df_q_0 = pd.DataFrame.from_dict(json_data_q[tickers_list[0]]) 
@@ -134,7 +134,7 @@ class DataAcquisition(UseBaffetCodeAPI):
         json_data_day = dict()
         for year in range(self.from_d_year,self.from_d_year+3):  
             from_day = f"{year}-{self.from_d_month}-01" 
-            to_day =  f"{year+self.add_year}-{self.to_d_month}-31" 
+            to_day =  f"{year+self.add_year}-{self.to_d_month}-01" 
 
             #apikeyを入れ、api利用を許可してもらい日別の株価を取得
             res_day = self.fetch(tickers_str, bc_api_endpoint_day, APIKEY, from_day, to_day) 

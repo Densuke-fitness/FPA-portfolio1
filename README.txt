@@ -1,4 +1,4 @@
-This description is in Japanese. So if you are not Japanese, Please use something to transrate.
+This description is in Japanese. So if you are not Japanese, Please use something to translate.
 
 以下が目次になります。
 0.はじめに
